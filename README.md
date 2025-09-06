@@ -1,68 +1,125 @@
-# CodeIgniter 4 Application Starter
+Sistema de Gestión de Recursos Educativos
 
-## What is CodeIgniter?
+Este proyecto es un sistema web para gestionar recursos educativos, como libros, artículos o cualquier otro material de aprendizaje. Permite a los usuarios registrar nuevos recursos, visualizarlos, y editar los existentes. El sistema está construido con CodeIgniter 4 y usa MySQL para la base de datos.
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+Características
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+Gestión de recursos educativos: Permite registrar, listar, editar y buscar recursos educativos.
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+Base de datos estructurada: Usa una base de datos relacional con tablas para categorías, subcategorías, editoriales y recursos.
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+Búsqueda eficiente: Los usuarios pueden buscar recursos por título, editorial, subcategoría o estado.
 
-## Installation & updates
+Formulario interactivo: Ofrece un formulario de registro y edición fácil de usar con validaciones.
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+Tecnologías Usadas
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+Backend: PHP con CodeIgniter 4.
 
-## Setup
+Base de datos: MySQL.
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+Frontend: HTML, CSS (con Bootstrap para el diseño responsivo).
 
-## Important Change with index.php
+Servidor web: Apache (usando Laragon o cualquier servidor compatible).
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+Configuración de mi Base de Datos
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+CREATE DATABASE IF NOT EXISTS cursos_db;
+USE cursos_db;
 
-**Please** read the user guide for a better explanation of how CI4 works!
+CREATE TABLE categorias (
+    idcategoria INT AUTO_INCREMENT PRIMARY KEY,
+    categoria VARCHAR(255) NOT NULL
+);
 
-## Repository Management
+INSERT INTO categorias (categoria) VALUES 
+('Matemáticas'), 
+('Comunicación'), 
+('Computación');
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+CREATE TABLE subcategorias (
+    idsubcategoria INT AUTO_INCREMENT PRIMARY KEY,
+    subcategoria VARCHAR(255) NOT NULL,
+    idcategoria INT,
+    FOREIGN KEY (idcategoria) REFERENCES categorias(idcategoria)
+);
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+INSERT INTO subcategorias (subcategoria, idcategoria) VALUES
+('Razonamiento Lógico Matemático', 1),
+('Álgebra', 1),
+('Trigonometría', 1),
+('Razonamiento verbal', 2),
+('Composición', 2),
+('Redacción', 2),
+('Base de datos', 3),
+('Sistemas operativos', 3),
+('Lenguajes de programación', 3);
 
-## Server Requirements
+CREATE TABLE editoriales (
+    ideditorial INT AUTO_INCREMENT PRIMARY KEY,
+    editorial VARCHAR(255) NOT NULL,
+    nacionalidad VARCHAR(255) NOT NULL
+);
 
-PHP version 8.1 or higher is required, with the following extensions installed:
+INSERT INTO editoriales (editorial, nacionalidad) VALUES
+('Editorial XYZ', 'México'),
+('Editorial ABC', 'España'),
+('Editorial 123', 'Estados Unidos');
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+CREATE TABLE recursos (
+    idrecurso INT AUTO_INCREMENT PRIMARY KEY,
+    idsubcategoria INT,
+    ideditorial INT,
+    tipo VARCHAR(50),
+    titulo VARCHAR(255),
+    apublicacion INT,
+    isbn VARCHAR(50),
+    numpaginas INT,
+    rutaportada VARCHAR(255),
+    rutarecurso VARCHAR(255),
+    estado VARCHAR(50),
+    creado TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    modificado TIMESTAMP NULL DEFAULT NULL,
+    FOREIGN KEY (idsubcategoria) REFERENCES subcategorias(idsubcategoria),
+    FOREIGN KEY (ideditorial) REFERENCES editoriales(ideditorial)
+);
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - If you are still using PHP 7.4 or 8.0, you should upgrade immediately.
-> - The end of life date for PHP 8.1 will be December 31, 2025.
+SELECT * FROM subcategorias;
+SELECT * FROM editoriales;
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+Uso del Proyecto
+1. Registrar Recursos
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+Formulario de Registro: Ve a http://localhost:8080/recursos/create para registrar un nuevo recurso educativo, seleccionando su subcategoría, editorial, tipo y estado.
+
+2. Ver Recursos Registrados
+
+Lista de Recursos: Ve a http://localhost:8080/recursos para ver todos los recursos registrados. Desde aquí también puedes editar un recurso, accediendo al botón de "Editar" al lado de cada recurso.
+
+3. Buscar Recursos
+
+En la página de lista de recursos, puedes usar el formulario de búsqueda para buscar recursos por título, editorial, subcategoría o estado.
+
+Estructura de la Base de Datos
+
+La base de datos cursos_db contiene las siguientes tablas:
+
+categorias: Guarda las categorías principales de los recursos (Matemáticas, Comunicación, Computación).
+
+subcategorias: Contiene las subcategorías relacionadas con las categorías (por ejemplo, Trigonometría, Álgebra, etc.).
+
+editoriales: Almacena las editoriales y sus respectivas nacionalidades.
+
+recursos: La tabla principal que guarda los recursos (libros, artículos, etc.), con información como el título, tipo, subcategoría, editorial, estado y más.
+
+Contribuciones
+
+Si quieres contribuir al proyecto, ¡serás bienvenido! Si encuentras algún error o tienes una idea para mejorar el proyecto, puedes seguir estos pasos:
+
+Haz un fork del repositorio.
+
+Crea una nueva rama para tu función o corrección de error.
+
+Realiza tus cambios y haz un commit con un mensaje claro.
+
+Push y abre un pull request con una descripción detallada de los cambios.
